@@ -14,6 +14,7 @@ export interface Shipment {
   transitInfo: string;
   extraCost?: number;
   isResent?: boolean;
+  aiNeedsElevation?: boolean;
   
   factors: {
     weather: number;

@@ -117,7 +117,7 @@ export default function App() {
           
           <div className="flex-1 overflow-y-auto">
             {sortedShipments.map(s => {
-              const isFlashing = escalations.some(e => e.shipmentId === s.id && e.status === 'PENDING') || s.tier === 'HIGH_RISK';
+              const isFlashing = escalations.some(e => e.shipmentId === s.id && e.status === 'PENDING') || s.tier === 'HIGH_RISK' || s.aiNeedsElevation;
               const hEntry = history.find(h => h.id === s.id);
               const isAIFixed = hEntry?.fixedBy === 'AI';
               const isHumanFixed = hEntry?.fixedBy === 'HUMAN';

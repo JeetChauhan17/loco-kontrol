@@ -70,6 +70,8 @@ export function AlertFeed({ alerts }: { alerts: Alert[] }) {
                         {a.type === 'HUMAN_FIX' && <User className="w-3 h-3 text-indigo-600 mr-1.5 shrink-0 mt-0.5" />}
                         {a.type === 'AUTO_FIX' || a.type === 'HUMAN_FIX' ? (
                            <span className="font-bold">{a.message}</span>
+                        ) : a.type === 'FAILED' ? (
+                           <span className="font-bold text-red-700">{a.message}</span>
                         ) : a.message}
                      </div>
                   ) : (

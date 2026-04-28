@@ -31,6 +31,7 @@ export function useShipments() {
   });
 
   const escalateShipment = useCallback((shipmentId: string) => {
+    setShipments(prev => prev.map(s => s.id === shipmentId ? { ...s, aiNeedsElevation: false, tier: 'HIGH_RISK', drs: Math.max(s.drs, 0.85) } : s));
     setEscalations(prev => {
       if (prev.some(e => e.shipmentId === shipmentId && e.status === 'PENDING')) return prev;
       return [{
@@ -121,7 +122,15 @@ export function useShipments() {
         let changed = false;
         let newValueLost = 0;
         const now = new Date();
-        const next = prev;
+        const next = prev.map(e => {
+           if (e.status === 'PENDING' && now.getTime() - e.timestamp.getTime() > 45000) { // 45s wait time
+              changed = true;
+              newValueLost += e.value;
+              newFailedShipments.push(e.shipmentId);
+              return { ...e, status: 'FAILED' as const };
+           }
+           return e;
+        });
         if (changed) {
            setValueLost(v => v + newValueLost);
            
@@ -133,6 +142,19 @@ export function useShipments() {
                    }
                });
                return newH;
+           });
+           
+           setAlerts(prevA => {
+               const newAlerts = newFailedShipments.map(shipmentId => ({
+                   id: Math.random().toString(36).substr(2, 9),
+                   shipmentId,
+                   timestamp: new Date(),
+                   oldTier: 'HIGH_RISK' as Tier,
+                   newTier: 'HIGH_RISK' as Tier,
+                   type: 'FAILED' as const,
+                   message: 'SLA Breach: Human reviewer failed to act in time.'
+               }));
+               return [...newAlerts, ...prevA].slice(0, 50);
            });
 
            return next;
@@ -274,18 +296,18 @@ export function useShipments() {
                     });
                     currentDrs = 0.2;
                     newTier = 'NOMINAL';
-                 } else {
+                 } else if (!s.aiNeedsElevation) {
                     // Cannot reroute and it IS severe, must ask human to elevate
+                    s.aiNeedsElevation = true;
                     newAlerts.push({
                        id: Math.random().toString(36).substr(2, 9),
                        shipmentId: s.id,
                        timestamp: new Date(),
                        oldTier: s.tier,
-                       newTier: 'HIGH_RISK',
+                       newTier: 'AT_RISK',
                        type: 'TIER_CHANGE',
-                       message: 'A.I. unable to autonomously resolve. Escalating for manual review.'
+                       message: 'A.I. unable to autonomously resolve. Human Review Elevation Required.'
                     });
-                    currentDrs = 0.85; // This will trigger it to be High Risk and pushed to Escalation queue
                  }
              }
           }
@@ -394,5 +416,5 @@ export function useShipments() {
     });
   }, []);
 
-  return { shipments, alerts, history: Object.values(history), escalations, valueLost, escalateShipment, resolveEscalation, resolveIssue, utcTime, isChaosMode, toggleChaos, reset };
+  return { shipments, alerts, history: Object.values(history) as HistoryEntry[], escalations, valueLost, escalateShipment, resolveEscalation, resolveIssue, utcTime, isChaosMode, toggleChaos, reset };
 }

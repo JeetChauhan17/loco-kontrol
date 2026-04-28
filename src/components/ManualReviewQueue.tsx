@@ -71,7 +71,7 @@ export function ManualReviewQueue({
                </div>
                
                {(() => {
-                  const maxFactor = shipment ? Object.entries(shipment.factors).reduce((a, b) => a[1] > b[1] ? a : b) : ['Unknown', 0];
+                  const maxFactor: [string, number] = shipment ? Object.entries(shipment.factors).reduce((a, b) => a[1] > b[1] ? a : b) as [string, number] : ['Unknown', 0];
                   let factorName = maxFactor[0].replace(/([A-Z])/g, ' $1').trim().toLowerCase();
                   return (
                      <div className="text-gray-500 mb-3 text-[11px] leading-tight flex-1">

@@ -24,7 +24,7 @@ export function Metrics({ shipments, valueLost, history, utcTime, isChaosMode, o
     .filter(s => s.tier !== 'NOMINAL')
     .reduce((sum, s) => sum + s.value, 0);
 
-  const valueSaved = history.filter(h => h.fixedBy !== 'NONE').reduce((sum, h) => sum + h.value, 0);
+  const valueSaved = history.filter(h => h.status === 'DELIVERED' && h.fixedBy !== 'NONE').reduce((sum, h) => sum + h.value, 0);
   const potentialLoss = valueSaved + valueLost;
 
   return (
@@ -62,7 +62,7 @@ export function Metrics({ shipments, valueLost, history, utcTime, isChaosMode, o
            
            <div className="flex items-center bg-gray-50 border border-gray-200 rounded px-2 py-1 relative shadow-inner">
               <div className="flex flex-col mr-3 items-end border-r border-gray-200 pr-3">
-                 <span className="text-[9px] text-gray-400 uppercase mb-0.5 leading-none">Potential</span>
+                 <span className="text-[9px] text-gray-400 uppercase mb-0.5 leading-none">Potential Loss</span>
                  <strike className="text-gray-400 text-xs font-bold leading-none decoration-red-300 w-full text-right">${potentialLoss}K</strike>
               </div>
               <div className="flex flex-col mr-3 items-end border-r border-gray-200 pr-3">
