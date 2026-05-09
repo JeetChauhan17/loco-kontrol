@@ -1,5 +1,4 @@
 # Loco-Kontrol
-
 > **Enterprise Supply Chain Intelligence & Autonomous Logistics Orchestration Platform**
 
 Predict disruptions before they happen. Understand the financial impact instantly. Resolve operational failures autonomously.
